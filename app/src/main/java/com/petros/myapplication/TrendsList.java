@@ -4,14 +4,14 @@ import java.util.List;
 
 public class TrendsList {
     private List<Trends> trends;
-    private String as_of;
-    private String created_at;
+    private String asOf;
+    private String createdAt;
     private List<Locations> locations;
 
-    public TrendsList(List<Trends> trends, String as_of, String created_at, List<Locations> locations) {
+    public TrendsList(List<Trends> trends, String asOf, String createdAt, List<Locations> locations) {
         this.trends = trends;
-        this.as_of = as_of;
-        this.created_at = created_at;
+        this.asOf = asOf;
+        this.createdAt = createdAt;
         this.locations = locations;
     }
 
@@ -19,12 +19,12 @@ public class TrendsList {
         return trends;
     }
 
-    public String getAs_of() {
-        return as_of;
+    public String getAsOf() {
+        return asOf;
     }
 
-    public String getCreated_at() {
-        return created_at;
+    public String getCreatedAt() {
+        return createdAt;
     }
 
     public List<Locations> getLocations() {
@@ -34,16 +34,16 @@ public class TrendsList {
     public class Trends {
         private String name;
         private String url;
-        private String promoted_content;
+        private String promotedContent;
         private String query;
-        private int tweet_volume;
+        private int tweetVolume;
 
-        public Trends(String name, String url, String promoted_content, String query, int tweet_volume) {
+        public Trends(String name, String url, String promotedContent, String query, int tweetVolume) {
             this.name = name;
             this.url = url;
-            this.promoted_content = promoted_content;
+            this.promotedContent = promotedContent;
             this.query = query;
-            this.tweet_volume = tweet_volume;
+            this.tweetVolume = tweetVolume;
         }
 
         public String getName() {
@@ -54,16 +54,16 @@ public class TrendsList {
             return url;
         }
 
-        public String getPromoted_content() {
-            return promoted_content;
+        public String getPromotedContent() {
+            return promotedContent;
         }
 
         public String getQuery() {
             return query;
         }
 
-        public int getTweet_volume() {
-            return tweet_volume;
+        public int getTweetVolume() {
+            return tweetVolume;
         }
     }
 
