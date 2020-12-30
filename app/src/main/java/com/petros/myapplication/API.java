@@ -14,8 +14,8 @@ import retrofit2.http.Part;
 import retrofit2.http.Query;
 
 public interface API {
-    @GET("trends/place.json?id=1")
-    Call<List<TrendsList>> getTrendsList();
+    @GET("trends/place.json")
+    Call<List<TrendsList>> getTrendsList(@Query("id") String woeid);
 
     @FormUrlEncoded
     @GET("search/tweets.json")
