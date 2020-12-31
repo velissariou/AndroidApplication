@@ -9,6 +9,10 @@ public class Tweets {
     private List<Statuses> statuses;
     private SearchMetadata searchMetadata;
 
+    public List<Statuses> getStatuses() {
+        return statuses;
+    }
+
     public Tweets() {
     }
 
@@ -47,6 +51,22 @@ public class Tweets {
         private String lang;
         private String geo;
 
+        public String getIdStr() {
+            return idStr;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public Entities getEntities() {
+            return entities;
+        }
+
+        public User getUser() {
+            return user;
+        }
+
         public Statuses() {
         }
 
@@ -57,6 +77,13 @@ public class Tweets {
             private List<UserMentions> userMentions;
             private List<Symbols> symbols;
 
+            public List<Media> getMedia() {
+                return media;
+            }
+
+            public List<URLs> getUrls() {
+                return urls;
+            }
 
             public class Hashtags {
                 private int[] indices;
@@ -126,7 +153,7 @@ public class Tweets {
             private String url;
             private String description;
             @SerializedName("protected")
-            private boolean a;
+            private boolean prtctd;
             private boolean verified;
             private int followersCount;
             private int friendsCount;
@@ -139,6 +166,22 @@ public class Tweets {
             private boolean defaultProfileImage;
             private String[] withheldInCountries;
             private String withheldScope;
+
+            public String getIdStr() {
+                return idStr;
+            }
+
+            public String getName() {
+                return name;
+            }
+
+            public String getScreenName() {
+                return screenName;
+            }
+
+            public String getProfileImageUrlHttps() {
+                return profileImageUrlHttps;
+            }
         }
 
         public class Coordinates {
@@ -163,18 +206,18 @@ public class Tweets {
         }
 
         private class ExtendedEntities {
-            private Entities.Media media;
+            private List<Entities.Media> media;
         }
     }
 
     public class SearchMetadata {
         private String completedIn;
-        private int maxId;
+        private long maxId;
         private String maxIdStr;
         private String nextResults;
         private String query;
         private int count;
-        private int sinceId;
+        private long sinceId;
         private String sinceIdStr;
     }
 }

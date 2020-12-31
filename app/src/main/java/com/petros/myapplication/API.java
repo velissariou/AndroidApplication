@@ -17,7 +17,6 @@ public interface API {
     @GET("trends/place.json")
     Call<List<TrendsList>> getTrendsList(@Query("id") String woeid);
 
-    @FormUrlEncoded
     @GET("search/tweets.json")
     Call<Tweets> getTweets(@Query("q") String query);
 
