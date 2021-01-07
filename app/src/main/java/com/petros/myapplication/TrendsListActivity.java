@@ -17,14 +17,13 @@ public class TrendsListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_trends_list);
 
         TwitterCalls twitterCalls = new TwitterCalls();
-        API twitterAPI = twitterCalls.getTwitterAPI();
-        ListView listView = (ListView) findViewById(R.id.trendsListView);
+        ListView listView = findViewById(R.id.trendsListView);
         Intent intent = getIntent();
         ArrayList<String> trendsList = intent.getStringArrayListExtra(MainActivity.TRENDS_LIST);
         listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, trendsList));
         listView.setOnItemClickListener((parent, view, position, id) -> {
             String selectedTrend = String.valueOf(listView.getItemAtPosition(position));
-            twitterCalls.searchTweets(TrendsListActivity.this, twitterAPI, selectedTrend);
+            twitterCalls.searchTweets(TrendsListActivity.this, selectedTrend);
         });
 
     }

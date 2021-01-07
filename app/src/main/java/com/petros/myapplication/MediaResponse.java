@@ -2,7 +2,7 @@ package com.petros.myapplication;
 
 
 public class MediaResponse {
-    private Integer mediaId;
+    private long mediaId;
     private String mediaIdString;
     private String mediaKey;
     private int size;
@@ -13,7 +13,7 @@ public class MediaResponse {
 
     }
 
-    public Integer getMediaId() {
+    public long getMediaId() {
         return mediaId;
     }
 

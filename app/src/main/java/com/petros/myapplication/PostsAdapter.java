@@ -49,7 +49,7 @@ public class PostsAdapter extends ArrayAdapter<Post> {
         public PostsViewHolder(View itemView) {
             nameTextView = itemView.findViewById(R.id.nameText);
             screenNameTextView = itemView.findViewById(R.id.screenNameText);
-            statusTextView = itemView.findViewById(R.id.statusText);
+            statusTextView = itemView.findViewById(R.id.statusTextView);
             profileImageView = itemView.findViewById(R.id.profileImageView);
             socialMediaImageView = itemView.findViewById(R.id.socialMediaImageView);
         }

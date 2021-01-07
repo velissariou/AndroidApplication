@@ -1,4 +1,20 @@
 <resources>
-    <string name="app_name">My Application</string>
-    <string name="get_trends_button">GET TRENDS</string>
+    <string name="app_name" translatable="false">My Application</string>
+    <string name="get_trends_button" translatable="false">TWITTER TRENDS</string>
+    <string name="post_button" translatable="false">CREATE A POST</string>
+    <string name="story_button" translatable="false">CREATE A STORY</string>
+    <string name="write_status_hint">Write your status...</string>
+    <string name="post">Post</string>
+    <string name="description_text_view">Create your post:</string>
+    <string name="gallery">Gallery</string>
+    <string name="camera">Camera</string>
+    <string name="twitter_checkbox">Twitter</string>
+    <string name="facebook_checkbox">Facebook</string>
+    <string name="instagram_checkbox">Instagram</string>
+    <string name="selected_image">Selected Image</string>
+    <string name="name_view">TextView</string>
+    <string name="screen_name_view">TextView</string>
+    <string name="text_view">TextView</string>
+    <string name="profile_image">Profile Image</string>
+    <string name="social_media_image">Social Media Image</string>
 </resources>

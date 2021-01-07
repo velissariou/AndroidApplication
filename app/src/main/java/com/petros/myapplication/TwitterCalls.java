@@ -2,8 +2,12 @@ package com.petros.myapplication;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Parcelable;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.FileUtils;
+import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -11,12 +15,15 @@ import com.google.gson.GsonBuilder;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
-import java.lang.reflect.Array;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -33,13 +40,15 @@ public class TwitterCalls {
     private static final String TWITTER_API_ACCESS_TOKEN_SECRET = BuildConfig.TWITTER_API_ACCESS_TOKEN_SECRET;
     private static final String TWITTER_API_URL = "https://api.twitter.com/1.1/";
     private static final String TWITTER_API_URL_MEDIA_UPLOAD = "https://upload.twitter.com/1.1/";
-    private static final String TRENDS_CALL = "Trends_Call_Debug";
-    public static final String SEARCH_TWEETS_CALL = "Search_Tweets_Debug";
+    private static final String TRENDS_CALL = "Trends Call Debug";
+    public static final String SEARCH_TWEETS_CALL = "Search Tweets Debug";
+    private static final String POST_MEDIA = "Post media Debug";
+    private static final String POST_TWEET = "Post tweet Debug";
 
     public TwitterCalls() {
     }
 
-    public API getTwitterAPI() {
+    public API getTwitterAPI(String URL) {
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .create();
@@ -52,14 +61,15 @@ public class TwitterCalls {
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(TWITTER_API_URL)
+                .baseUrl(URL)
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         return retrofit.create(API.class);
     }
 
-    public void callTrends(Context context, API twitterAPI, String woeid) {
+    public void callTrends(Context context, String woeid) {
+        API twitterAPI = getTwitterAPI(TWITTER_API_URL);
         Intent intent = new Intent(context, TrendsListActivity.class);
         ArrayList<String> trendsList = new ArrayList<>();
         Call<List<TrendsList>> call = twitterAPI.getTrendsList(woeid);
@@ -90,8 +100,8 @@ public class TwitterCalls {
         });
     }
 
-    public void searchTweets(Context context, API twitterAPI, String query){
-
+    public void searchTweets(Context context,  String query){
+        API twitterAPI = getTwitterAPI(TWITTER_API_URL);
         ArrayList<Post> posts = new ArrayList<>();
         Intent intent = new Intent(context, ViewPostsActivity.class);
         Call<Tweets> call = twitterAPI.getTweets(query);
@@ -119,7 +129,6 @@ public class TwitterCalls {
                     context.startActivity(intent);
                 }
             }
-
             @Override
             public void onFailure(@NotNull Call<Tweets> call, @NotNull Throwable t) {
                 Log.d(SEARCH_TWEETS_CALL, t.getMessage());
@@ -128,4 +137,106 @@ public class TwitterCalls {
 
     }
 
+    public void postTweet(String text, Uri uri, Context context){
+
+        if(uri != null){
+            File originalFile = new File(getRealPathFromUri(uri, context));
+            originalFile.setReadable(true);
+            API uploadApi = getTwitterAPI(TWITTER_API_URL_MEDIA_UPLOAD);
+            RequestBody filePart = RequestBody.create(MediaType.parse("multipart/form-data"), originalFile);
+            MultipartBody.Part file = MultipartBody.Part.createFormData("media", originalFile.getName(), filePart);
+            Call<MediaResponse> call = uploadApi.getMediaID(file, "tweet_image");
+            call.enqueue(new Callback<MediaResponse>() {
+                @Override
+                public void onResponse(@NotNull Call<MediaResponse> call, @NotNull Response<MediaResponse> response) {
+                    if(!response.isSuccessful()){
+                        Toast.makeText(
+                                context, "Unsuccessful request." + response.message(),
+                                Toast.LENGTH_SHORT).show();
+                        Log.d(POST_MEDIA, response.message());
+                    }else{
+                        if(response.body() == null) {
+                            Toast.makeText(context, "Tweet could not be posted." + response.message(),
+                                    Toast.LENGTH_SHORT).show();
+                            Log.d(POST_MEDIA, "Empty JSON response");
+                            throw new AssertionError();
+                        }
+                        String mediaId = response.body().getMediaIdString();
+                        API twitterAPI = getTwitterAPI(TWITTER_API_URL);
+                        Call<ResponseBody> aCall = twitterAPI.postTweet(text, mediaId);
+                        aCall.enqueue(new Callback<ResponseBody>() {
+                            @Override
+                            public void onResponse(@NotNull Call<ResponseBody> call, @NotNull Response<ResponseBody> response) {
+                                if(!response.isSuccessful()){
+                                    Toast.makeText(context, "Unsuccessful request." + response.message(),
+                                            Toast.LENGTH_SHORT).show();
+                                    Log.d(POST_MEDIA, response.message());
+                                }else {
+                                    if(response.body() == null) {
+                                        Toast.makeText(context, "Tweet could not be posted." + response.message(),
+                                                Toast.LENGTH_SHORT).show();
+                                        Log.d(POST_MEDIA, "Empty JSON response");
+                                        throw new AssertionError();
+                                    }
+                                    Toast.makeText(context, "Tweet posted successfully!", Toast.LENGTH_SHORT).show();
+                                    Log.d(POST_MEDIA, "Tweet posted successfully!");
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(@NotNull Call<ResponseBody> call, @NotNull Throwable t) {
+                                Toast.makeText(context, "Tweet could not be posted." + t.getMessage(),
+                                        Toast.LENGTH_SHORT).show();
+                                Log.d(POST_MEDIA, t.getMessage());
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onFailure(@NotNull Call<MediaResponse> call, @NotNull Throwable t) {
+                    Toast.makeText(context, "Media could not be uploaded." + t.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                    Log.d(POST_MEDIA, t.getMessage());
+                }
+            });
+
+        }else{
+            API twitterAPI = getTwitterAPI(TWITTER_API_URL);
+            Call<ResponseBody> call = twitterAPI.postTweet(text, "");
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(@NotNull Call<ResponseBody> call, @NotNull Response<ResponseBody> response) {
+                    if(!response.isSuccessful()){
+                        Toast.makeText(context, "Tweet could not be posted." + response.message(),
+                                Toast.LENGTH_SHORT).show();
+                        Log.d(POST_TWEET, response.message());
+                    }else {
+                        if(response.body() == null) {
+                            Toast.makeText(context, "Tweet could not be posted." + response.message(),
+                                    Toast.LENGTH_SHORT).show();
+                            Log.d(POST_TWEET, "Empty JSON response");
+                            throw new AssertionError();
+                        }
+                        Toast.makeText(context, "Tweet posted successfully!", Toast.LENGTH_SHORT).show();
+                        Log.d(POST_TWEET, "Tweet posted successfully!");
+                    }
+                }
+
+                @Override
+                public void onFailure(@NotNull Call<ResponseBody> call, @NotNull Throwable t) {
+                    Toast.makeText(context, "Tweet could not be posted." + t.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                    Log.d(POST_TWEET, t.getMessage());
+                }
+            });
+        }
+    }
+
+    public String getRealPathFromUri(Uri uri, Context context){
+        Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+        cursor.moveToFirst();
+        int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+        return cursor.getString(idx);
+    }
 }
