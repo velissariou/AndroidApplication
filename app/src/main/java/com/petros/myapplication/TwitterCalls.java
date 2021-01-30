@@ -4,21 +4,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.FileUtils;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
-
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -44,32 +42,44 @@ public class TwitterCalls {
     public static final String SEARCH_TWEETS_CALL = "Search Tweets Debug";
     private static final String POST_MEDIA = "Post media Debug";
     private static final String POST_TWEET = "Post tweet Debug";
+    private static final String FACEBOOK_API_TOKEN = BuildConfig.FACEBOOK_API_TOKEN;
+    private static final String INSTAGRAM_USER_ID = BuildConfig.INSTAGRAM_USER_ID;
+    private static final String FACEBOOK_GRAPH_API_URL = "https://graph.facebook.com/v9.0";
+    private static final String fields = "id,caption,media_url,media_type,like_count,comments_count,timestamp";
 
     public TwitterCalls() {
     }
 
-    public API getTwitterAPI(String URL) {
+    public API getAPI(String URL) {
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .create();
         OkHttpOAuthConsumer consumer = new OkHttpOAuthConsumer(TWITTER_API_KEY, TWITTER_API_SECRET);
         consumer.setTokenWithSecret(TWITTER_API_ACCESS_TOKEN, TWITTER_API_ACCESS_TOKEN_SECRET);
 
-
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(new SigningInterceptor(consumer))
                 .build();
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(URL)
-                .client(okHttpClient)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
-        return retrofit.create(API.class);
+        if(URL.contains("twitter")){
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(URL)
+                    .client(okHttpClient)
+                    .addConverterFactory(GsonConverterFactory.create(gson))
+                    .build();
+            return retrofit.create(API.class);
+        } else {
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(URL)
+                    .addConverterFactory(GsonConverterFactory.create(gson))
+                    .build();
+            return retrofit.create(API.class);
+        }
+
     }
 
-    public void callTrends(Context context, String woeid) {
-        API twitterAPI = getTwitterAPI(TWITTER_API_URL);
+    public void callTrends(Context context, String woeid, String query) {
+        API twitterAPI = getAPI(TWITTER_API_URL);
         Intent intent = new Intent(context, TrendsListActivity.class);
         ArrayList<String> trendsList = new ArrayList<>();
         Call<List<TrendsList>> call = twitterAPI.getTrendsList(woeid);
@@ -86,7 +96,9 @@ public class TwitterCalls {
                         }
                         Log.d(TRENDS_CALL, "Received JSON file.");
                         for(TrendsList.Trends trends : aTrendsList.getTrends()){
-                            trendsList.add(trends.getName());
+                            if(trends.getName().contains(query)){
+                                trendsList.add(trends.getName());
+                            }
                         }
                     }
                     intent.putStringArrayListExtra(MainActivity.TRENDS_LIST, trendsList);
@@ -101,7 +113,8 @@ public class TwitterCalls {
     }
 
     public void searchTweets(Context context,  String query){
-        API twitterAPI = getTwitterAPI(TWITTER_API_URL);
+        API twitterAPI = getAPI(TWITTER_API_URL);
+        API facebookAPI = getAPI(FACEBOOK_GRAPH_API_URL);
         ArrayList<Post> posts = new ArrayList<>();
         Intent intent = new Intent(context, ViewPostsActivity.class);
         Call<Tweets> call = twitterAPI.getTweets(query);
@@ -114,19 +127,68 @@ public class TwitterCalls {
                     if(response.body() == null){
                         throw new AssertionError();
                     }
-                    Log.d(SEARCH_TWEETS_CALL, "Received JSON file.");
+                    Log.d(SEARCH_TWEETS_CALL, "Received Twitter JSON file.");
                     for(Tweets.Statuses statuses: response.body().getStatuses()) {
-                        Post post = new Post(statuses.getIdStr(),
+                        TwitterPost twitterPost  = new TwitterPost(
+                                statuses.getIdStr(),
                                 statuses.getText(),
-                                statuses.getUser().getIdStr(),
-                                statuses.getUser().getName(),
-                                statuses.getUser().getScreenName(),
-                                statuses.getUser().getProfileImageUrlHttps()
+                                statuses.getEntities().getMedia().get(0).getMediaUrlHttps(),
+                                statuses.getEntities().getMedia().get(0).getType(),
+                                statuses.getFavoriteCount().toString(),
+                                String.valueOf(statuses.getReplyCount()),
+                                statuses.getCreatedAt()
                         );
-                        posts.add(post);
+                        posts.add(twitterPost);
                     }
                     intent.putParcelableArrayListExtra(SEARCH_TWEETS_CALL,  posts);
-                    context.startActivity(intent);
+
+                    Call<JSONObject> facebookCall = facebookAPI.getHashtagId(INSTAGRAM_USER_ID, query, FACEBOOK_API_TOKEN);
+                    facebookCall.enqueue(new Callback<JSONObject>() {
+                        @Override
+                        public void onResponse(@NotNull Call<JSONObject> call, @NotNull Response<JSONObject> response) {
+                            if (!response.isSuccessful()) {
+                                Log.d(SEARCH_TWEETS_CALL, response.message());
+                            } else {
+                                if (response.body() == null) {
+                                    throw new AssertionError();
+                                }
+                                Log.d(SEARCH_TWEETS_CALL, "Received Instagram JSON file.");
+                                String hashtagId = null;
+                                try {
+                                    hashtagId = response.body().getJSONObject("data").getString("id");
+                                    Log.d(SEARCH_TWEETS_CALL, "id = " + hashtagId);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                Call<List<InstagramPost>> call1 = facebookAPI.getInstagramPosts(hashtagId, INSTAGRAM_USER_ID, fields);
+                                call1.enqueue(new Callback<List<InstagramPost>>() {
+                                    @Override
+                                    public void onResponse(@NotNull Call<List<InstagramPost>> call, @NotNull Response<List<InstagramPost>> response) {
+                                        if (!response.isSuccessful()) {
+                                            Log.d(SEARCH_TWEETS_CALL, response.message());
+                                        } else {
+                                            if (response.body() == null) {
+                                                throw new AssertionError();
+                                            }
+                                            Log.d(SEARCH_TWEETS_CALL, "Received Instagram JSON file.");
+                                            posts.addAll(response.body());
+                                            intent.putParcelableArrayListExtra(SEARCH_TWEETS_CALL, posts);
+                                            context.startActivity(intent);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(@NotNull Call<List<InstagramPost>> call, @NotNull Throwable t) {
+                                        Log.d(SEARCH_TWEETS_CALL, t.getMessage());
+                                    }
+                                });
+                            }
+                        }
+                        @Override
+                        public void onFailure(@NotNull Call<JSONObject> call, @NotNull Throwable t) {
+                            Log.d(SEARCH_TWEETS_CALL, t.getMessage());
+                        }
+                    });
                 }
             }
             @Override
@@ -134,7 +196,6 @@ public class TwitterCalls {
                 Log.d(SEARCH_TWEETS_CALL, t.getMessage());
             }
         });
-
     }
 
     public void postTweet(String text, Uri uri, Context context){
@@ -142,7 +203,7 @@ public class TwitterCalls {
         if(uri != null){
             File originalFile = new File(getRealPathFromUri(uri, context));
             originalFile.setReadable(true);
-            API uploadApi = getTwitterAPI(TWITTER_API_URL_MEDIA_UPLOAD);
+            API uploadApi = getAPI(TWITTER_API_URL_MEDIA_UPLOAD);
             RequestBody filePart = RequestBody.create(MediaType.parse("multipart/form-data"), originalFile);
             MultipartBody.Part file = MultipartBody.Part.createFormData("media", originalFile.getName(), filePart);
             Call<MediaResponse> call = uploadApi.getMediaID(file, "tweet_image");
@@ -162,7 +223,7 @@ public class TwitterCalls {
                             throw new AssertionError();
                         }
                         String mediaId = response.body().getMediaIdString();
-                        API twitterAPI = getTwitterAPI(TWITTER_API_URL);
+                        API twitterAPI = getAPI(TWITTER_API_URL);
                         Call<ResponseBody> aCall = twitterAPI.postTweet(text, mediaId);
                         aCall.enqueue(new Callback<ResponseBody>() {
                             @Override
@@ -202,7 +263,7 @@ public class TwitterCalls {
             });
 
         }else{
-            API twitterAPI = getTwitterAPI(TWITTER_API_URL);
+            API twitterAPI = getAPI(TWITTER_API_URL);
             Call<ResponseBody> call = twitterAPI.postTweet(text, "");
             call.enqueue(new Callback<ResponseBody>() {
                 @Override

@@ -20,6 +20,8 @@ android {
             it.buildConfigField 'String', 'TWITTER_API_SECRET', TwitterAPISecret
             it.buildConfigField 'String', 'TWITTER_API_ACCESS_TOKEN', TwitterAPIAccessToken
             it.buildConfigField 'String', 'TWITTER_API_ACCESS_TOKEN_SECRET', TwitterAPIAccessTokenSecret
+            it.buildConfigField 'String', 'FACEBOOK_API_TOKEN', FacebookAPIToken
+            it.buildConfigField 'String', 'INSTAGRAM_USER_ID', InstagramUserID
         }
     }
 
@@ -39,16 +41,18 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.7.1'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'se.akerfeldt:okhttp-signpost:1.1.0'
-    implementation 'com.squareup.okhttp3:okhttp:3.0.0-RC1'
+    implementation 'com.squareup.okhttp3:okhttp:3.14.4'
     implementation 'oauth.signpost:signpost-core:1.2.1.2'
     implementation 'com.squareup.retrofit2:retrofit:2.7.1'
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'org.jetbrains:annotations:15.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    implementation 'com.facebook.android:facebook-android-sdk:9.0.0'
+    implementation 'com.facebook.android:facebook-login:9.0.0'
 
 }

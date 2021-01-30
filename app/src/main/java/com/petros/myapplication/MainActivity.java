@@ -1,20 +1,22 @@
 package com.petros.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String WOEID = "1";
     public static final String TRENDS_LIST = "Trends List";
-    private API twitterAPI;
+    private String userQuery;
+    private static String QUERY = "";
     Button getTrendsBtn;
     Button postBtn;
-    Button storyBtn;
+    Button searchTrendsBtn;
+    EditText searchTrendsTxt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,15 +28,20 @@ public class MainActivity extends AppCompatActivity {
         getTrendsBtn = findViewById(R.id.getTrendsBtn);
         getTrendsBtn.setOnClickListener(v -> {
             Toast.makeText(this,"Getting Trends...", Toast.LENGTH_SHORT).show();
-            twitterCalls.callTrends(MainActivity.this, WOEID);
+            twitterCalls.callTrends(this, WOEID, QUERY);
         });
 
         postBtn = findViewById(R.id.createPostButton);
         postBtn.setOnClickListener(v -> startActivity(new Intent(this, PostActivity.class)));
 
-        storyBtn = findViewById(R.id.storyButton);
-        storyBtn.setOnClickListener(v -> startActivity(new Intent(this, StoryActivity.class)));
-
+        searchTrendsTxt = findViewById(R.id.searchTrendsText);
+        searchTrendsBtn = findViewById(R.id.searchTrendsButton);
+        searchTrendsBtn.setOnClickListener(v -> {
+            userQuery = searchTrendsTxt.getText().toString();
+            Toast.makeText(this, "Searching for Trends...", Toast.LENGTH_SHORT).show();
+            twitterCalls.callTrends(this, WOEID, userQuery);
+        });
 
     }
 }
+

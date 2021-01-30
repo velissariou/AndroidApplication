@@ -5,19 +5,21 @@ import android.os.Parcelable;
 
 public class Post implements Parcelable {
     private String id;
-    private String text;
-    private String userId;
-    private String name;
-    private String screenName;
-    private String profileImageUrlHttps;
+    private String caption;
+    private String mediaUrl;
+    private String mediaType;
+    private String likeCount;
+    private String commentsCount;
+    private String timestamp;
 
-    public Post(String id, String text, String userId, String name, String screenName, String profileImageUrlHttps) {
+    public Post(String id, String caption, String mediaUrl, String mediaType, String likeCount, String commentsCount, String timestamp) {
         this.id = id;
-        this.text = text;
-        this.userId = userId;
-        this.name = name;
-        this.screenName = screenName;
-        this.profileImageUrlHttps = profileImageUrlHttps;
+        this.caption = caption;
+        this.mediaUrl = mediaUrl;
+        this.mediaType = mediaType;
+        this.likeCount = likeCount;
+        this.commentsCount = commentsCount;
+        this.timestamp = timestamp;
     }
 
     public Post() {
@@ -25,11 +27,12 @@ public class Post implements Parcelable {
 
     protected Post(Parcel in) {
         id = in.readString();
-        text = in.readString();
-        userId = in.readString();
-        name = in.readString();
-        screenName = in.readString();
-        profileImageUrlHttps = in.readString();
+        caption = in.readString();
+        mediaUrl = in.readString();
+        mediaType = in.readString();
+        likeCount = in.readString();
+        commentsCount = in.readString();
+        timestamp = in.readString();
     }
 
     public static final Creator<Post> CREATOR = new Creator<Post>() {
@@ -48,48 +51,60 @@ public class Post implements Parcelable {
         return id;
     }
 
-    public String getText() {
-        return text;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getScreenName() {
-        return screenName;
-    }
-
-    public String getProfileImageUrlHttps() {
-        return profileImageUrlHttps;
-    }
-
     public void setId(String id) {
         this.id = id;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public String getCaption() {
+        return caption;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setCaption(String caption) {
+        this.caption = caption;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getMediaUrl() {
+        return mediaUrl;
     }
 
-    public void setScreenName(String screenName) {
-        this.screenName = screenName;
+    public void setMediaUrl(String mediaUrl) {
+        this.mediaUrl = mediaUrl;
     }
 
-    public void setProfileImageUrlHttps(String profileImageUrlHttps) {
-        this.profileImageUrlHttps = profileImageUrlHttps;
+    public String getMediaType() {
+        return mediaType;
+    }
+
+    public void setMediaType(String mediaType) {
+        this.mediaType = mediaType;
+    }
+
+    public String getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(String likeCount) {
+        this.likeCount = likeCount;
+    }
+
+    public String getCommentsCount() {
+        return commentsCount;
+    }
+
+    public void setCommentsCount(String commentsCount) {
+        this.commentsCount = commentsCount;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public static Creator<Post> getCREATOR() {
+        return CREATOR;
     }
 
     @Override
@@ -100,10 +115,11 @@ public class Post implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);
-        dest.writeString(text);
-        dest.writeString(userId);
-        dest.writeString(name);
-        dest.writeString(screenName);
-        dest.writeString(profileImageUrlHttps);
+        dest.writeString(caption);
+        dest.writeString(mediaUrl);
+        dest.writeString(mediaType);
+        dest.writeString(likeCount);
+        dest.writeString(commentsCount);
+        dest.writeString(timestamp);
     }
 }

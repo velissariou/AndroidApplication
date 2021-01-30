@@ -41,7 +41,7 @@ public class Tweets {
         private Statuses quotedStatus;
         private Statuses retweetedStatus;
         private Integer quoteCount;
-        private int reply_count;
+        private int replyCount;
         private int retweetCount;
         private Integer favoriteCount;
         private boolean favorited;
@@ -66,6 +66,19 @@ public class Tweets {
         public User getUser() {
             return user;
         }
+
+        public int getReplyCount() {
+            return replyCount;
+        }
+
+        public Integer getFavoriteCount() {
+            return favoriteCount;
+        }
+
+        public String getCreatedAt() {
+            return createdAt;
+        }
+
 
         public Statuses() {
         }
@@ -104,6 +117,13 @@ public class Tweets {
                 private String type;
                 private String url;
 
+                public String getMediaUrlHttps() {
+                    return mediaUrlHttps;
+                }
+
+                public String getType() {
+                    return type;
+                }
 
                 public class Sizes {
                     public Size thumb;

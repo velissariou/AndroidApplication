@@ -1,6 +1,7 @@
 package com.petros.myapplication;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,17 +41,13 @@ public class PostsAdapter extends ArrayAdapter<Post> {
     }
 
     static class PostsViewHolder{
-        public TextView nameTextView;
-        public TextView screenNameTextView;
         public TextView statusTextView;
-        public ImageView profileImageView;
+        public ImageView postMediaView;
         public ImageView socialMediaImageView;
 
         public PostsViewHolder(View itemView) {
-            nameTextView = itemView.findViewById(R.id.nameText);
-            screenNameTextView = itemView.findViewById(R.id.screenNameText);
             statusTextView = itemView.findViewById(R.id.statusTextView);
-            profileImageView = itemView.findViewById(R.id.profileImageView);
+            postMediaView = itemView.findViewById(R.id.postImageView);
             socialMediaImageView = itemView.findViewById(R.id.socialMediaImageView);
         }
     }
@@ -69,11 +66,14 @@ public class PostsAdapter extends ArrayAdapter<Post> {
         }
 
         Post post = posts.get(position);
-        holder.nameTextView.setText(post.getName());
-        holder.screenNameTextView.setText(post.getScreenName());
-        holder.statusTextView.setText(post.getText());
-        Picasso.get().load(post.getProfileImageUrlHttps()).into(holder.profileImageView);
-        Picasso.get().load(R.drawable.twitter_logo_blue).into(holder.socialMediaImageView);
+        holder.statusTextView.setText(post.getCaption());
+        Picasso.get().load(post.getMediaUrl()).into(holder.postMediaView);
+        if(post instanceof TwitterPost){
+            Picasso.get().load(R.drawable.twitter_logo_blue).into(holder.socialMediaImageView);
+        } else {
+            Picasso.get().load(R.drawable.instagram).into(holder.socialMediaImageView);
+        }
+
 
         return convertView;
     }

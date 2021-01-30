@@ -1,10 +1,9 @@
 <resources>
     <string name="app_name" translatable="false">My Application</string>
     <string name="get_trends_button" translatable="false">TWITTER TRENDS</string>
-    <string name="post_button" translatable="false">CREATE A POST</string>
-    <string name="story_button" translatable="false">CREATE A STORY</string>
+    <string name="post_button" translatable="false">CREATE A POST/STORY</string>
     <string name="write_status_hint">Write your status...</string>
-    <string name="post">Post</string>
+    <string name="post">Tweet on Twitter</string>
     <string name="description_text_view">Create your post:</string>
     <string name="gallery">Gallery</string>
     <string name="camera">Camera</string>
@@ -17,4 +16,12 @@
     <string name="text_view">TextView</string>
     <string name="profile_image">Profile Image</string>
     <string name="social_media_image">Social Media Image</string>
+    <string name="search_trends">Search Trends...</string>
+    <string name="search">Search</string>
+    <string name="facebook_app_id">2735249820136820</string>
+    <string name="fb_login_protocol_scheme">fb2735249820136820</string>
+    <string name="post_on_instagram">Post on Instagram</string>
+    <string name="share_to_facebook">SHARE TO FACEBOOK</string>
+    <string name="share_to_instagram_story">Share to Instagram Story</string>
+    <string name="share_to_facebook_story">Share to facebook story</string>
 </resources>
